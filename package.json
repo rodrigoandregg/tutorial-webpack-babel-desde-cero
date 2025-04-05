@@ -4,20 +4,41 @@
   "description": "An educational project to teach the setup and usage of Webpack and Babel for building modern web applications.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky",
+    "format": "prettier --write .",
+    "lint": "eslint --ext .js,.jsx"
   },
   "keywords": [
     "webpack",
-  "babel",
-  "tutorial",
-  "frontend",
-  "web development",
-  "module bundling",
-  "transpiling",
-  "javascript",
-  "es6",
-  "modern web"
+    "babel",
+    "tutorial",
+    "frontend",
+    "web development",
+    "module bundling",
+    "transpiling",
+    "javascript",
+    "es6",
+    "modern web"
   ],
   "author": "Rodrigo Andre Gutierrez <rodrigoandregutierrez@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "prettier": "^3.5.3",
+    "standard": "^17.1.2"
+  },
+  "lint-staged":{
+    "**/*.{js,css,scss,html}": "prettier --write"
+  },
+  "eslintConfig": {
+    "env": {
+      "browser": true,
+      "es2021": true
+    },
+    "extends": [
+      "./node_modules/standard/eslintrc.json", 
+      "prettier"
+    ]
+  }
 }
