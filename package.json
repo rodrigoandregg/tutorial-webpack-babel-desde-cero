@@ -1,0 +1,23 @@
+{
+  "name": "tutorial-webpack-babel-desde-cero",
+  "version": "1.0.0",
+  "description": "An educational project to teach the setup and usage of Webpack and Babel for building modern web applications.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "webpack",
+  "babel",
+  "tutorial",
+  "frontend",
+  "web development",
+  "module bundling",
+  "transpiling",
+  "javascript",
+  "es6",
+  "modern web"
+  ],
+  "author": "Rodrigo Andre Gutierrez <rodrigoandregutierrez@gmail.com>",
+  "license": "MIT"
+}
