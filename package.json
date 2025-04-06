@@ -25,10 +25,11 @@
   "license": "MIT",
   "devDependencies": {
     "husky": "^9.1.7",
+    "lint-staged": "^15.5.0",
     "prettier": "^3.5.3",
     "standard": "^17.1.2"
   },
-  "lint-staged":{
+  "lint-staged": {
     "**/*.{js,css,scss,html}": "prettier --write"
   },
   "eslintConfig": {
@@ -37,7 +38,7 @@
       "es2021": true
     },
     "extends": [
-      "./node_modules/standard/eslintrc.json", 
+      "./node_modules/standard/eslintrc.json",
       "prettier"
     ]
   }

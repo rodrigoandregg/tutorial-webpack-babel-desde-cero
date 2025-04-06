@@ -51,11 +51,11 @@ tu-proyecto/
 
 ## 📌 ¿Por qué instalamos Prettier y ESLint, y creamos archivos de configuración para ambos?
 
-Tanto **Prettier** como **ESLint** son herramientas esenciales para mantener un código limpio, consistente y libre de errores. Usarlas correctamente dentro de un proyecto es crucial, especialmente cuando trabajamos en equipo. 
+Tanto **Prettier** como **ESLint** son herramientas esenciales para mantener un código limpio, consistente y libre de errores. Usarlas correctamente dentro de un proyecto es crucial, especialmente cuando trabajamos en equipo.
 
 Te explico por qué preferimos instalar estas herramientas como dependencias del proyecto y no confiar solo en las extensiones de los editores.
 
->👀 Ojo!
+> 👀 Ojo!
 >
 > No es obligatorio seguir esta filosofía, ya que, aunque tengas instaladas las extensiones de **Prettier** y **ESlint**, sus archivos de configuración siempre se antepondrán a las configuraciones de las extensiones dentro de las opciones del editor.
 >
@@ -67,7 +67,7 @@ En lugar de depender de las extensiones del editor para formatear el código y c
 
 ¿no te ha pasado que clonas un repositorio y, al momento de formatearlo con **Prettier** y hacer un commit, tu archivo ya no coincide en nada con el original a pesar de que solo agregaste unas cuantas líneas?
 
-Pues al instalar **Prettier** y **ESLint** como dependencias, todos los miembros del equipo tendrán la misma versión de estas herramientas. Esto garantiza que el código se formatee y valide de manera uniforme, sin importar qué editor o entorno estén utilizando. 
+Pues al instalar **Prettier** y **ESLint** como dependencias, todos los miembros del equipo tendrán la misma versión de estas herramientas. Esto garantiza que el código se formatee y valide de manera uniforme, sin importar qué editor o entorno estén utilizando.
 
 Tanto **Prettier** como **ESLint** tienen configuraciones personalizables que definimos en archivos específicos dentro del proyecto. Esto nos permite:
 
@@ -76,6 +76,7 @@ Tanto **Prettier** como **ESLint** tienen configuraciones personalizables que de
 **Mejor control sobre las reglas**: Puedes ajustar las reglas de formateo y validación según las necesidades del proyecto. Por ejemplo, puedes definir que **Prettier** use comillas simples en lugar de dobles, o que **ESLint** permita ciertos tipos de código que otros linters pueden marcar como errores.
 
 ### 🚫 ¿Por qué no usar solo extensiones del editor?
+
 Aunque las extensiones de **Prettier** y **ESLint** en editores como VSCode son útiles, confiamos en que instalar las herramientas directamente en el proyecto nos da un control mucho mayor sobre cómo se formatea y valida el código. Las extensiones pueden llevar a inconsistencias en equipos debido a los siguientes motivos:
 
 **Diferentes versiones**: Si cada miembro del equipo usa su propia configuración o versión de las herramientas mediante extensiones, es probable que no tengan el mismo comportamiento, lo que puede generar diferencias en el formateo del código y hasta en los resultados de las validaciones. Esto es particularmente problemático cuando alguien formatea el código en su editor local sin que se ejecute el mismo conjunto de reglas en todos los entornos de desarrollo.
@@ -83,7 +84,6 @@ Aunque las extensiones de **Prettier** y **ESLint** en editores como VSCode son 
 **Confusión en los pull requests**: Si alguien formatea el código con su extensión local sin las mismas reglas de Prettier o ESLint que el resto del equipo, puede ocurrir que un archivo se vea completamente diferente solo por el formato. Esto puede hacer que un pull request sea más difícil de revisar y aumentar la probabilidad de errores en el código. Básicamente lo que te decía antes.
 
 **Falta de estandarización**: Usar solo extensiones no garantiza que todos los desarrolladores sigan el mismo estilo de código. Si un miembro del equipo tiene configuraciones personalizadas en su editor, puede que no siga las mismas convenciones que el resto.
-
 
 ## Instalación de dependencias
 
@@ -96,8 +96,7 @@ En primer lugar tenemos las dependencias que son esenciales tanto en el desarrol
 - react
 - react-dom
 - core-js
-- 
-Si, solo esas 3, todas las demás son dependencias de desarrollo. Así que usaremos `npm install --save-dev` o simplemente `npm i -D` como los _pros_ que somos:
+- Si, solo esas 3, todas las demás son dependencias de desarrollo. Así que usaremos `npm install --save-dev` o simplemente `npm i -D` como los _pros_ que somos:
 
 > no te abrumes, ya te iré explicando para qué sirven en los pasos que siguen.
 
@@ -117,15 +116,17 @@ Si, solo esas 3, todas las demás son dependencias de desarrollo. Así que usare
 - @pmmmwh/react-refresh-webpack-plugin
 - mini-css-extract-plugin
 
-> Si te equivocas en algo, mantén la calma. 
-> 
+> Si te equivocas en algo, mantén la calma.
+>
 > Usa este comando para desinstalar una dependencia en específico. O las que necesites eliminar, cambiando la palabra "dependencia" por el nombre real de la dependencia que quieres desinstalar:
->```bash
->npm uninstal dependencia
->```
+>
+> ```bash
+> npm uninstal dependencia
+> ```
+>
 > Haz es o borra la dependencia de la lista, borra la carpeta `node_modules` y usa `npm install` para instalar todo lo que esté especificado en `package.json`. Pero eso no sería tan _pro_ de nuestra parte ¿o si?.
 
-***
+---
 
 ## Archivos de configuración de webpack
 
@@ -133,6 +134,7 @@ Como viste al inicio, crearemos la carpeta/directorio llamada `webpack`, en la q
 Antes podrímos haber usado un solo archivo pero habría sido dificil de entender y mantener a largo plazo. Por eso ahora está más normalizado el uso de tres archivos separados, que se enlazarán con el uso de `webpack-merge`.
 
 ¿tú carpeta se va viendo así? ¡genial!
+
 ```
 webpack/
 ├── webpack.common.js
