@@ -22,7 +22,7 @@ A lo largo del tutorial iremos creando distintos archivos y directorios/carpetas
 
 ```
 tu-proyecto/
-├── webpack/
+├── config/
 │   ├── webpack.common.js
 │   ├── webpack.dev.js
 │   └── webpack.prod.js
@@ -130,14 +130,225 @@ En primer lugar tenemos las dependencias que son esenciales tanto en el desarrol
 
 ## Archivos de configuración de webpack
 
-Como viste al inicio, crearemos la carpeta/directorio llamada `webpack`, en la que agregaremos 3 archivos (`webpack.dev.js`, `webpack.prod.js` y `webpack.common.js`). Estos servirán como configuración de desarrollo, confiugración para producción y la configuración en común para ambos casos.
+Como viste al inicio, crearemos la carpeta/directorio llamada `config`, en la que agregaremos 3 archivos (`webpack.dev.js`, `webpack.prod.js` y `webpack.common.js`). Estos servirán como configuración de desarrollo, confiugración para producción y la configuración en común para ambos casos.
 Antes podrímos haber usado un solo archivo pero habría sido dificil de entender y mantener a largo plazo. Por eso ahora está más normalizado el uso de tres archivos separados, que se enlazarán con el uso de `webpack-merge`.
 
 ¿tú carpeta se va viendo así? ¡genial!
 
 ```
-webpack/
+config/
 ├── webpack.common.js
 ├── webpack.dev.js
 └── webpack.prod.js
+```
+
+## Configuración común de webpack
+
+Comenzaremos con el archivo de configuración base de webpack. Así que la configuración de desarrollo y producción tendrá que esperar.
+
+Archivo `webpack.common.js`:
+
+Primero te mostraré como quedaría el archivo terminado y luego te explicaré qué significa cada cosa.
+
+### **¿Qúe necesitamos hacer primero?**
+
+Aunque este sistema es más inteligente que nosotros y no suele confundirse, lo ideal es hacer las cosas en un orden específico para tener más claridad. Recuerda que un desarrolador debe escribir código para otros desarrolladores, no solo para la máquina.
+
+**seguiremos este orden:**
+1. **Definir punto de entrada _(entry)_ y punto de salida _(output)_. Webpack necesita saber**: 
+   - Dónde comenzar a analizar dependencias.
+   - Dónde y cómo debe generar los archivos compilados.
+2. **Definir las reglas de manejo de archivos/recursos (module.rules)**.
+   - Esto le indica a Webpack cómo transformar los diferentes tipos de archivos que encuentre mientras analiza dependencias (JSX, CSS, imágenes, etc.) 
+3. **Definir la manera en que webpack resolverá las extensiones por nosotros**:
+   - Esto mejora la **DX** _(Developer Experience)_, permitiendo importar archivos sin escribir extensiones manualmente.
+4. **definir los plugins que se usarán en el proyecto**:
+   - Aquí se extiende el comportamiento de Webpack con tareas adicionales como generar HTML, limpiar la carpeta de salida, extraer CSS, etc.
+
+```js
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+/** @type {import('webpack').Configuration} */
+
+module.exports = {
+  entry: './src/index.jsx',
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: '[name].[contenthash].js',
+    publicPath: '',
+    clean: true,
+  },
+  module: {
+    rules: [
+      {
+        test: /\.(js|jsx)$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+        },
+      },
+      {
+        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        type: 'asset/resource',
+      },
+    ],
+  },
+  resolve: {
+    extensions: ['.js', '.jsx', '.json'],
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: './public/index.html',
+    }),
+  ],
+};
+```
+
+Si al momento de escribir el código en tu archivo `webpack.common.js` el editor no te ayuda con el autocompletado o las sugerencias, usa este comentario.
+Esta es una anotación de tipo _(type annotation)_ que se usa para proporcionar autocompletado, validación y documentación en tiempo real cuando estás escribiendo la **configuración de Webpack en un archivo JavaScript**. Algo así como un supercomentario, pa los frikazos (yo).
+
+```js
+/* @type {import('webpack').Configuration} */
+```
+
+### Explicación parte por parte:
+
+### ¿Qué es el _entry_?
+
+La propiedad `entry` define el **punto de entrada principal** de tu aplicación. Es el archivo que Webpack usará como **punto de partida** para construir el **grafo de dependencias**, es decir, el **mapa interno** de todos los archivos y módulos que se relacionan entre sí a través de `import` o `require`.
+
+```js
+entry: './src/index.jsx'
+```
+
+Con esta línea le decimos a Webpack "Empieza a analizar mi aplicación desde el archivo ``index.jsx`` que se encuentra en la carpeta ``src``."
+
+### **¿Qué es el _output_?**
+
+La propiedad output en Webpack define dónde y cómo se guardará el _bundle_ final que se genera a partir del _entry_.
+
+```js
+output: {
+  path: path.resolve(__dirname, '../dist'),
+  filename: '[name].[contenthash].js',
+  publicPath: '',
+  clean: true,
+}
+```
+
+**Path**: Define la ruta absoluta del directorio donde se guardará el archivo final. Usamos ``path.resolve`` para asegurarnos de que siempre se genera correctamente sin importar el sistema operativo.
+
+- Recuerda importar _path_. Y lo importamos así porque es un módulo nativo de _Node.js_, y no hace falta instalarlo con _npm_.
+```js
+const path = require('path');
+```
+
+- Webpack se ejecuta en Node.js, y muchas rutas que vas a definir (como en ``output.path``) necesitan ser rutas absolutas. _Node_ no asume automáticamente desde dónde estás ejecutando, por eso usamos ``path.resolve(...)`` para asegurarnos de que siempre se construyan correctamente.
+
+- _path_ une varios segmentos de ruta y te devuelve una ruta absoluta válida según el sistema operativo
+
+- el resultado de `path: path.resolve(__dirname, '../dist')` es algo como `/home/usuario/proyecto/dist`.
+
+**filename**: Es el nombre del archivo resultante.
+
+- ``[name]`` toma el nombre del punto de entrada (por defecto: ``main``).
+
+- ``[contenthash]`` genera un hash basado en el contenido del archivo, útil para _caché busting_: si el contenido cambia, el nombre cambia, lo que obliga al navegador a descargar la nueva versión.
+
+**publicPath**: Define la ruta base que se usará en el navegador para cargar los archivos.
+
+- En este caso está vacío (``''``), lo que significa que los archivos se servirán desde la raíz.
+
+**clean**: Si está en true, Webpack limpia automáticamente el contenido del directorio de salida (dist) antes de escribir el nuevo bundle.
+- Evita que se acumulen archivos viejos que ya no se usan.
+
+### ¿Qué es ``module.rules``?
+
+El bloque ``module.rules`` en Webpack es donde defines las reglas que Webpack debe seguir para transformar o procesar los archivos que se encuentran en tu proyecto. Cada regla tiene un ``test`` para determinar qué tipo de archivo debe aplicarse, y un ``use`` o ``loader`` que define cómo deben procesarse esos archivos.
+
+```js
+module: {
+  rules: [
+    {
+      test: /.(js|jsx)$/,
+      use: 'babel-loader',
+      exclude: /node_modules/,
+    },
+    {
+      test: /\.(png|svg|jpg|jpeg|gif)$/i,
+      type: 'asset/resource',
+    },
+  ],
+},
+```
+
+### Regla para archivos JS y JSX:
+
+```js
+{
+      test: /.(js|jsx)$/,
+      use: 'babel-loader',
+      exclude: /node_modules/,
+    }
+```
+
+**test**: Especifica los archivos que deben ser procesados por esta regla. En este caso, se está utilizando una expresión regular que hace que se aplique a archivos con extensión .js o .jsx.
+
+**use**: Aquí es donde definimos qué _loader_ se debe usar para procesar estos archivos. En este caso, ``babel-loader`` se usa para transpilar código JavaScript moderno (incluyendo JSX) a una versión compatible con los navegadores más antiguos.
+
+**exclude**: Este campo indica qué carpetas o archivos deben ser excluidos de esta regla. En este caso, se excluyen los archivos de ``node_modules`` porque generalmente no es necesario transpilar las dependencias de terceros.
+
+> si corres el _live server_ sin `exclude: /node_modules/` pasan cosas feas, o en otras palablas, Webpack intenta procesar todos los archivos dentro de esa carpeta, lo cual rompe el rendimiento y puede causar errores graves.
+
+### Regla para los archivos de imágenes:
+
+```js
+{
+  test: /\.(png|svg|jpg|jpeg|gif)$/i,
+  type: 'asset/resource',
+}
+```
+
+**test**: Aplica esta regla a archivos que tengan extensiones de imágenes como .png, .svg, .jpg, .jpeg, .gif.
+
+**type**: Con Webpack 5, puedes usar el campo type en lugar de configurar loaders explícitamente. En este caso, ``asset/resource`` es el tipo de archivo que se debe usar, lo que le dice a Webpack que gestione las imágenes como recursos y las copie al directorio de salida (por ejemplo, la carpeta dist).
+
+## ¿Qué es ``resolve.extensions``?
+
+La propiedad ``resolve.extensions`` le indica a Webpack qué extensiones de archivo debe resolver automáticamente cuando se realiza una importación sin especificar la extensión.
+
+```js
+resolve: {
+  extensions: ['.js', '.jsx', '.json'],
+}
+```
+
+Así no tenemos que estar poniendo manualmente las extensiones de los archivos que importamos, por ejemplo: usamos `import (container) from ./src/components/container` en vez de `import (container) from ./src/components/container.jsx`.
+
+Sin esta configuración, tendrías que escribir siempre la extensión completa, lo cual es engorroso y poco práctico, sobre todo en proyectos grandes o cuando se usan múltiples tipos de archivos (por ejemplo, .js, .jsx, .ts).
+
+### ¿Qué es un plugin en Webpack?
+
+Los _plugins_ extienden las capacidades de Webpack más allá del procesamiento de módulos (que es lo que hacen los _loaders_). Mientras que los _loaders_ transforman archivos, los _plugins_ manipulan el _bundle_ final, optimizan el _build_, inyectan _scripts_, limpian carpetas, entre otras tareas.
+
+### ¿Qué hace el _plugin_ ``HtmlWebpackPlugin``?
+Este _plugin_ crea un archivo ``index.html`` basado en la plantilla que le entregues (en este caso ``./public/index.html``) y automáticamente inyecta los _bundles_ de JavaScript generados por Webpack en ese HTML, sin necesidad de que lo hagas manualmente. 
+
+Esto es útil porque Webpack genera archivos con nombres dinámicos (hash incluidos) y sería inviable actualizarlos a mano cada vez que haces un build nuevo.
+
+```js
+plugins: [
+    new HtmlWebpackPlugin({
+      template: './public/index.html',
+    }),
+  ]
+```
+
+Gracias a este plugin no necesitas poner la etiqueta `<script src="./index.js"></script>` en el archivo `index.html`. Porque el nombre del archivo `.js` generado en build nunca tiene el mismo nombre, cambia por cada vez que generamos la versión de producción, gracias a algo que veremos en la configuración de Webpack para producción.
+
+Y no olvides importarlo:
+
+```js
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 ```
