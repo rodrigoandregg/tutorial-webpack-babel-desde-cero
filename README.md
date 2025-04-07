@@ -153,7 +153,7 @@ config/
 > 
 > Y las dependencias de desarrollo:
 > ```bash
->npm i -D webpack webpack-cli webpack babel-loader html-webpack-plugin
+>npm i -D webpack webpack-cli babel-loader html-webpack-plugin
 > ```
 
 Comenzaremos con el archivo de configuración base de webpack. Así que la configuración de desarrollo y producción tendrá que esperar.
@@ -176,12 +176,6 @@ Aunque este sistema es más inteligente que nosotros y no suele confundirse, lo 
    - Esto mejora la **DX** _(Developer Experience)_, permitiendo importar archivos sin escribir extensiones manualmente.
 4. **definir los plugins que se usarán en el proyecto**:
    - Aquí se extiende el comportamiento de Webpack con tareas adicionales como generar HTML, limpiar la carpeta de salida, extraer CSS, etc.
-
-> Comando para installar dependencias:
-> 
->```bash
->npm i -D
->```
 
 ```js
 const path = require('path');
