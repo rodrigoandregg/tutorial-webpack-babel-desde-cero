@@ -352,3 +352,180 @@ Y no olvides importarlo:
 ```js
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 ```
+
+***
+
+## Archivo de configuración de Webpack para desarrollo
+
+Ahora veremos como quedaría nuestro archivo `webpack.dev.js`, que se enfoca en mejorar la experiencia durante el desarrollo. Este archivo debe:
+
+- Establecer el modo en ``development``.
+
+- Agregar un ``devtool`` adecuado para _debuggear_ (como ``'eval-source-map'``).
+
+- Usar ``style-loader`` en lugar de extraer el CSS, para inyectarlo directamente al DOM.
+
+- Configurar ``webpack-dev-server``.
+
+- Hacer merge con la configuración común.
+
+### ¿Por qué usamos **Webpack Dev Server** en lugar de la extensión **Live Server**?
+
+Cuando trabajas con Webpack, el código fuente (como archivos JS, JSX, SCSS, etc.) necesita ser procesado y transformado antes de estar listo para el navegador. Este proceso lo hace Webpack a través de su configuración de _loaders_ y _plugins_. Por eso:
+
+- La extensión Live Server simplemente abre archivos HTML estáticos desde el sistema de archivos.
+- No entiende de _bundling_, ni transforma código con Babel, ni interpreta configuraciones de Webpack.
+- Si abres tu proyecto con esta extensión, verás errores o una página en blanco porque el navegador no podrá interpretar directamente los archivos fuente que aún no han sido compilados.
+
+En cambio, **Webpack Dev Server** sí está integrado con el proceso de _build_.
+Compila, transpila y sirve los archivos resultantes desde memoria, sin escribirlos físicamente en el disco.
+Además, ofrece funcionalidades clave como:
+
+- **Live reload**: recarga la página cuando detecta cambios.
+
+- **Hot Module Replacement (HMR)**: reemplaza solo los módulos modificados sin recargar toda la página.
+
+- Integración con Webpack _plugins_ como HtmlWebpackPlugin, que generan archivos como ``index.html`` dinámicamente.
+
+Despues de tanto blabla vamos con el archivo:
+
+```js
+const path = require('path')
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin')
+const { merge } = require('webpack-merge')
+const common = require('./webpack.common')
+
+/** @type {import('webpack').Configuration} */
+
+const devConfig = {
+	mode: 'development',
+  devtool: 'eval-source-map',
+	module: {
+		rules: [
+			{
+				test: /\.(css|sass|scss)$/,
+				use: ['style-loader', 'css-loader', 'sass-loader'],
+			},
+		],
+	},
+	plugins: [
+		new ReactRefreshWebpackPlugin(),
+	],
+	devServer: {
+		port: 3000,
+		allowedHosts: 'all', // Permite acceder desde cualquier hostname
+		static: {
+			directory: path.resolve(__dirname, '../public'),
+		},
+		hot: true,
+		open: true,
+	},
+}
+module.exports = merge(common, devConfig)
+```
+
+## Explicación parte por parte
+
+### devConfig
+
+```js
+const devConfig = {}
+```
+Cómo ves ponemos toda nuestra configuración dentro de un objeto con el nombre `devConfig` para poder combinarla con la configuración del archivo `webpack.common.js`.
+
+### Modo desarrollo
+
+```js
+mode: 'development'
+```
+Esto se hace para indicarle a Webpack que genere código legible, sin minificar, y con herramientas de depuración activadas.
+
+### Herramienta de desarrollo
+
+```js
+devtool: 'eval-source-map'
+```
+Esto nos permite ver los archivos originales en el navegador al depurar, sin sacrificar demasiado rendimiento.
+
+### Reglas: Loaders de estilos
+
+```js
+module: {
+		rules: [
+			{
+				test: /\.(css|sass|scss)$/,
+				use: ['style-loader', 'css-loader', 'sass-loader'],
+			},
+		],
+	}
+```
+Los loaders de estilos se utilizan para procesar los archivos CSS, SASS y SCSS, transformándolos en algo que el navegador pueda interpretar y mostrar correctamente. En nuestra configuración, estamos usando tres loaders: ``style-loader``, ``css-loader`` y ``sass-loader``.
+
+La secuencia en que se definen estos loaders es muy importante, ya que cada uno hace una tarea específica en el proceso de transformación de los archivos de estilos. Vamos a ver por qué se usan en este orden:
+
+**sass-loader**: Transforma el código SCSS/SASS en CSS.
+
+**css-loader**: Interpreta los archivos CSS, resuelve los @import, url(), y convierte los archivos CSS en módulos.
+
+**style-loader**: Inyecta el CSS procesado dentro del HTML para que el navegador pueda usarlo.
+
+> Si pensaste "¿Por qué están en orden invertido entonces?" recuerda que webpack lee los loaders de derecha a ezquierda, del último al primero.
+>
+> Primero lee el loader de SASS, luego el de CSS y por último el `style-loader`
+
+### Plugins
+
+```js
+plugins: [
+		new ReactRefreshWebpackPlugin(),
+	]
+```
+Para nuestra configuración de desarrollo solo usaremos `ReactRefreshWebpackPlugin`. Tal como te expliqué antes, en la comparación con la extensión Dev Server de VSCode, este plugin tiene como propósito proporcionar una experiencia de desarrollo más fluida y rápida al trabajar con aplicaciones React, especialmente durante el proceso de hot reloading.
+
+No olvides importarlo:
+```js
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin')
+```
+
+## Dev server
+
+```js
+	devServer: {
+		port: 3000,
+		allowedHosts: 'all',
+		static: {
+			directory: path.resolve(__dirname, '../public'),
+		},
+		hot: true,
+		open: true,
+	}
+```
+
+Usaremos la configuración de Webpack Dev Server, que ahora es nativa de Webpack y no necesitamos instalar ninguna dependencia, para recargar automáticamente y servir contenido localmente. Esto recarga los cambios en tiempo real y mejora el flujo de trabajo.
+
+Tambíén importamos ese `path`:
+```js
+const path = require('path');
+```
+
+**Desglosemos esta config:**
+
+- `port: 3000`: puedes poner cualquier puerto que quieras. Si tienes otro servicio que también usa el puerto 3000, puedes cambiarlo por otro número.
+- `allowedHosts: 'all'`: Con esto le decimos a Webpack que permita todos (_all_) los Hostnames. Básicamente permite que cualquier dispositivo en la red local o cualquier hostname acceda al servidor de desarrollo. Se usa cuando no necesitas restringir el acceso. Si trabajas en algo muy privado, seguramente tú sabrás mejor que yo qué hacer.
+- `static:{directory:path.resolve(__dirname, '../public')}`: Estamos indicando el directorio/carpeta en que se encuentran los archivos **estáticos** (los archivos como imágenes, fuentes y otros activos que no requieren procesamiento)  que queremos servir. En este caso, estamos usando el directorio public que está en la raíz de nuestro proyecto
+- `hot: true`: Esto habilita el **HMR** y solo funciona gracias a Michael Mok, el creador del plugin ReactRefreshWebpackPlugin. El Hot Module Replacement (HMR) usa este plugin, el cual permite que solo las partes del código que han cambiado se recarguen sin necesidad de recargar toda la página.
+- `open: true`: Aquí le estamos diciendo al servidor que se abra automaticamente en el navegador, ahorrándote el proceso de abrir el navegador manualmente y escribir la URL del servidor local en la barra de direcciones.
+
+
+### Webpack merge
+
+```js
+module.exports = merge(common, devConfig)
+```
+
+Usamos `merge()` desde `webpack-merge` para fusionar los archivos `webpack.common.js` y nuestro objeto `devConfig`. Por eso al inicio importamos el archivo de configuración común y `merge`
+
+```js
+const common = require('./webpack.common')
+const { merge } = require('webpack-merge')
+```
