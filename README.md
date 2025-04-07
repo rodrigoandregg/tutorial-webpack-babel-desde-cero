@@ -96,7 +96,9 @@ En primer lugar tenemos las dependencias que son esenciales tanto en el desarrol
 - react
 - react-dom
 - core-js
-- Si, solo esas 3, todas las demás son dependencias de desarrollo. Así que usaremos `npm install --save-dev` o simplemente `npm i -D` como los _pros_ que somos:
+- Si, solo esas 3.
+  
+Todas las demás son dependencias de desarrollo. Así que usaremos `npm install --save-dev` o simplemente `npm i -D` como los _pros_ que somos:
 
 > no te abrumes, ya te iré explicando para qué sirven en los pasos que siguen.
 
@@ -144,6 +146,16 @@ config/
 
 ## Configuración común de webpack
 
+> Instalemos algunas dependencias de producción:
+> ```bash
+>npm i react react-dom
+> ```
+> 
+> Y las dependencias de desarrollo:
+> ```bash
+>npm i -D webpack webpack-cli webpack babel-loader html-webpack-plugin
+> ```
+
 Comenzaremos con el archivo de configuración base de webpack. Así que la configuración de desarrollo y producción tendrá que esperar.
 
 Archivo `webpack.common.js`:
@@ -164,6 +176,12 @@ Aunque este sistema es más inteligente que nosotros y no suele confundirse, lo 
    - Esto mejora la **DX** _(Developer Experience)_, permitiendo importar archivos sin escribir extensiones manualmente.
 4. **definir los plugins que se usarán en el proyecto**:
    - Aquí se extiende el comportamiento de Webpack con tareas adicionales como generar HTML, limpiar la carpeta de salida, extraer CSS, etc.
+
+> Comando para installar dependencias:
+> 
+>```bash
+>npm i -D
+>```
 
 ```js
 const path = require('path');
@@ -356,6 +374,11 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 ***
 
 ## Archivo de configuración de Webpack para desarrollo
+
+> Instalemos las dependencias de desarrollo para esta sección:
+> ```bash
+>npm i -D style-loader css-loader sass-loader sass @pmmmwh/react-refresh-webpack-plugin webpack-merge
+> ```
 
 Ahora veremos como quedaría nuestro archivo `webpack.dev.js`, que se enfoca en mejorar la experiencia durante el desarrollo. Este archivo debe:
 

@@ -24,10 +24,20 @@
   "author": "Rodrigo Andre Gutierrez <rodrigoandregutierrez@gmail.com>",
   "license": "MIT",
   "devDependencies": {
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.5.16",
+    "babel-loader": "^10.0.0",
+    "css-loader": "^7.1.2",
+    "html-webpack-plugin": "^5.6.3",
     "husky": "^9.1.7",
     "lint-staged": "^15.5.0",
     "prettier": "^3.5.3",
-    "standard": "^17.1.2"
+    "sass": "^1.86.3",
+    "sass-loader": "^16.0.5",
+    "standard": "^17.1.2",
+    "style-loader": "^4.0.0",
+    "webpack": "^5.99.0",
+    "webpack-cli": "^6.0.1",
+    "webpack-merge": "^6.0.1"
   },
   "lint-staged": {
     "**/*.{js,css,scss,html}": "prettier --write"
@@ -41,5 +51,9 @@
       "./node_modules/standard/eslintrc.json",
       "prettier"
     ]
+  },
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
   }
 }
